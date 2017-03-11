@@ -54,56 +54,26 @@ var routes = Routes{
     	"/recipe/{recipe_id:[0-9]+}",
     	RecipeGet,
     },
+    Route{
+    	"RecipeCreate",
+    	"POST",
+    	"/recipe",
+    	RecipeCreate,
+    },
+    Route{
+    	"FindRecipeNameSoundsLike",
+    	"GET",
+    	"/recipe/soundslike/{recipeSoundsLikeName}",
+    	FindRecipeNameSoundsLike,
+    },
+    Route{
+    	"FindRecipeNameContains",
+    	"GET",
+    	"/recipe/contains/{recipeNameContains}",
+    	FindRecipeNameContains,
+    },
     // everything below is for reference only.  It doesn't belong here.
 /*    
-    Route{
-    	"AllergiesRead",
-    	"GET",
-    	"/Allergies/device_id/{device_id:[0-9]+}",
-    	AllergiesRead,
-    },
-    Route{
-     	"AllergiesRead",
-    	"GET",
-    	"/Allergies/patient_id/{patient_id:[0-9]+}",
-    	AllergiesRead,
-    },
-    Route{
-    	"CreatePatient",
-    	"POST",
-    	"/Patient",
-    	CreatePatient,
-    },
-    Route{
-    	"GetPatient",
-    	"GET",
-    	"/Patient/patient_id/{patient_id:[0-9]+}",
-    	GetPatient,
-    },
-    Route{
-    	"GetMedication",
-    	"GET",
-    	"/Medications/patient_id/{patient_id:[0-9]+}",
-    	GetMedication,
-    },
-    Route{
-    	"GetMedication",
-    	"GET",
-    	"/Medications/device_id/{device_id:[0-9]+}",
-    	GetMedication,
-    },
-    Route{
-    	"CreateMedication",
-    	"POST",
-    	"/Medications",
-    	CreateMedication,
-    },
-    Route{
-    	"LocationManager",
-    	"GET",
-    	"/LocationManager/device_id/{device_id:[0-9]+}",
-    	LocationManager,
-    },
     Route{
     	"PatientLocationManager",
     	"GET",

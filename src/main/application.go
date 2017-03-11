@@ -6,7 +6,6 @@ package main
 import (
 	"log"
     "net/http"
-//    "database/sql"
 )
 
 const mysqlTimeFormat = "2006-01-02 15:04:05"
@@ -15,6 +14,9 @@ const mysqlTimeFormat = "2006-01-02 15:04:05"
 func main() {
 
     router := NewRouter()
-
-    log.Fatal(http.ListenAndServe(":8080", router))
+	certFile := "./server.pm"
+    keyFile := "./server.key"
+    
+//    log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServeTLS(":3000", certFile, keyFile, router))
 }

@@ -56,6 +56,7 @@ func IngredientGet (w http.ResponseWriter, r *http.Request) {
     		if err := json.NewEncoder(w).Encode(ingredient); err != nil {
 				panic(err)
 		    }
+    		w.WriteHeader(http.StatusOK)
     	}
     } else {
     	w.WriteHeader(http.StatusBadRequest)
@@ -64,17 +65,16 @@ func IngredientGet (w http.ResponseWriter, r *http.Request) {
 
 func IngredientCreate (w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-    w.WriteHeader(http.StatusOK)
 	var ingr Ingredient
     body, err := ioutil.ReadAll(io.LimitReader(r.Body, maxReadBytes))
     if err != nil {
         panic(err)
     }
     if err := r.Body.Close(); err != nil {
+    	w.WriteHeader(http.StatusBadRequest)
         panic(err)
     }
     if err := json.Unmarshal(body, &ingr); err != nil {
-        w.Header().Set("Content-Type", "application/json; charset=UTF-8")
         w.WriteHeader(422) // unprocessable entity
         if err := json.NewEncoder(w).Encode(err); err != nil {
             panic(err)
@@ -88,11 +88,10 @@ func IngredientCreate (w http.ResponseWriter, r *http.Request) {
             panic(err)
         }		
 	}
-    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-    w.WriteHeader(http.StatusCreated)
     if err := json.NewEncoder(w).Encode(ingId); err != nil {
 		panic(err)
     }
+    w.WriteHeader(http.StatusCreated)
 }
 
 func OwnerCreate (w http.ResponseWriter, r *http.Request) {
@@ -107,7 +106,6 @@ func OwnerCreate (w http.ResponseWriter, r *http.Request) {
         panic(err)
     }
     if err := json.Unmarshal(body, &owner); err != nil {
-        w.Header().Set("Content-Type", "application/json; charset=UTF-8")
         w.WriteHeader(422) // unprocessable entity
         if err := json.NewEncoder(w).Encode(err); err != nil {
             panic(err)
@@ -121,7 +119,6 @@ func OwnerCreate (w http.ResponseWriter, r *http.Request) {
             panic(err)
         }		
 	}
-    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     w.WriteHeader(http.StatusCreated)
     if err := json.NewEncoder(w).Encode(id); err != nil {
 		panic(err)
@@ -131,7 +128,7 @@ func OwnerCreate (w http.ResponseWriter, r *http.Request) {
 func OwnerGet (w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json; charset=UTF-8")
     vars := mux.Vars(r)
-    fmt.Printf("vars: %v\n", vars)
+//    fmt.Printf("vars: %v\n", vars)
     ownerEmail := vars["ownerEmail"]
     if len(ownerEmail) != 0 {
     	owner, err := GetOwner(*dbh, ownerEmail)
@@ -142,6 +139,7 @@ func OwnerGet (w http.ResponseWriter, r *http.Request) {
     		if err := json.NewEncoder(w).Encode(owner); err != nil {
 				panic(err)
 		    }
+    		w.WriteHeader(http.StatusOK)
     	}
     } else {
     	w.WriteHeader(http.StatusBadRequest)
@@ -163,6 +161,87 @@ func RecipeGet (w http.ResponseWriter, r *http.Request) {
     		if err := json.NewEncoder(w).Encode(recipe); err != nil {
 				panic(err)
 		    }
+    		w.WriteHeader(http.StatusOK)
+    	}
+    } else {
+    	w.WriteHeader(http.StatusBadRequest)
+    }	
+}
+
+func RecipeCreate (w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    var recipe Recipe
+    body, err := ioutil.ReadAll(io.LimitReader(r.Body, maxReadBytes))
+    if err != nil {
+        panic(err)
+    }
+    if err := r.Body.Close(); err != nil {
+        panic(err)
+    }
+    if err := json.Unmarshal(body, &recipe); err != nil {
+        w.WriteHeader(422) // unprocessable entity
+        if err := json.NewEncoder(w).Encode(err); err != nil {
+            panic(err)
+        }
+    }
+	ingId, nfgErr := SaveRecipe(*dbh, recipe)
+	if(nfgErr != nil) {
+		log.Print(nfgErr)
+		w.WriteHeader(422)
+        if err := json.NewEncoder(w).Encode(err); err != nil {
+            panic(err)
+        }		
+	}
+    w.WriteHeader(http.StatusCreated)
+    if err := json.NewEncoder(w).Encode(ingId); err != nil {
+		panic(err)
+    }
+}
+
+func FindRecipeNameContains (w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    vars := mux.Vars(r)
+    fmt.Printf("vars: %v\n", vars)
+    recipieNameSoundsLike := vars["recipeNameContains"]
+    if len(recipieNameSoundsLike) != 0 {
+    	recipes, err := GetRecipeNameContains(*dbh, recipieNameSoundsLike)
+    	if err != nil {
+    		w.WriteHeader(http.StatusNotFound)
+    		log.Println(err)
+    	} else {
+    		if len(recipes) > 0 {
+	    		if err := json.NewEncoder(w).Encode(recipes); err != nil {
+					panic(err)
+			    }
+	    		w.WriteHeader(http.StatusOK)
+    		} else {
+    			w.WriteHeader(http.StatusNoContent)
+    		}
+    	}
+    } else {
+    	w.WriteHeader(http.StatusBadRequest)
+    }	
+}
+
+func FindRecipeNameSoundsLike (w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    vars := mux.Vars(r)
+    fmt.Printf("vars: %v\n", vars)
+    recipieNameSoundsLike := vars["recipeSoundsLikeName"]
+    if len(recipieNameSoundsLike) != 0 {
+    	recipes, err := GetRecipeNameSoundsLike(*dbh, recipieNameSoundsLike)
+    	if err != nil {
+    		w.WriteHeader(http.StatusNotFound)
+    		log.Println(err)
+    	} else {
+    		if len(recipes) > 0 {
+	    		if err := json.NewEncoder(w).Encode(recipes); err != nil {
+					panic(err)
+			    }
+	    		w.WriteHeader(http.StatusOK)
+    		} else {
+    			w.WriteHeader(http.StatusNoContent)
+    		}
     	}
     } else {
     	w.WriteHeader(http.StatusBadRequest)

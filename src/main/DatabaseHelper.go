@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 	"database/sql"
+	"strconv"
 	_ "github.com/go-sql-driver/mysql"
 )
 type DatabaseConnectionPrameters struct {
@@ -66,4 +67,14 @@ func GetLastInserId(dbh sql.DB) (int, error) {
 	var id = -1
 	err := dbh.QueryRow("select LAST_INSERT_ID()").Scan(&id)
 	return id, err
+}
+
+//ToNullString invalidates a sql.NullString if empty, validates if not empty
+func ToNullString(s string) sql.NullString {
+  return sql.NullString{String : s, Valid : s != ""}
+}
+
+func ToNullInt64(s string) sql.NullInt64 {
+	i, err := strconv.Atoi(s)
+	return sql.NullInt64{Int64 : int64(i), Valid : err == nil}
 }
