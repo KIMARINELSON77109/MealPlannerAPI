@@ -72,47 +72,29 @@ var routes = Routes{
     	"/recipe/contains/{recipeNameContains}",
     	FindRecipeNameContains,
     },
-    // everything below is for reference only.  It doesn't belong here.
-/*    
     Route{
-    	"PatientLocationManager",
+    	"GetMealById",
     	"GET",
-    	"/LocationManager/Patient/latitude/{lat}/longitude/{long}/floor/{floor}/LocationError/{locErr}",
-    	PatientLocationManager,
+    	"/meal/{mealId:[0-9]+}",
+    	GetMealById,
     },
     Route{
-    	"CreateCarePlan",
-    	"POST",
-    	"/CarePlan",
-    	CreateCarePlan,   	
+    	"GetMealsSoundsLike",
+    	"GET",
+    	"/meals/soundslike/{mealSoundsLike}",
+    	GetMealsSoundsLike,
     },
-    // The following is a dummy route used only for independent demo's.
-    // It will be deprecated as soon as the video demo's using the IPS are running
+    // no handler implemented yet
     Route{
-     	"NextPatient",
+    	"GetMealsForProfileHandler",
     	"GET",
-    	"/demo/NextPatient/{patientId}",
-    	NextPatient,   	
+    	"/meals/profile/{profileId}",
+    	GetMealsForProfileHandler,
     },
-    // this is only used for independent demo's w/o the IPS.
-    // it will be deprecated
-    Route {
-    	"AddPatientToQue",
+    Route{
+    	"SaveMealHandler",
     	"POST",
-    	"/demo/AddPatientToQue",
-    	HandleAddPatientToQueue,
+    	"/meal",
+    	SaveMealHandler,
     },
-    Route {
-    	"CreateObservation",
-    	"POST",
-    	"/Observation",
-    	HandleCreateObservation,
-    },
-    Route {
-    	"GetObservations",
-    	"GET",
-    	"/Observations/{patient_id:[0-9]+}",
-    	GetObservations,
-    },
-*/    
 }

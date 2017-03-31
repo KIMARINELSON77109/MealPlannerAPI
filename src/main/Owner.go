@@ -30,6 +30,27 @@ func GetOwner (dbh sql.DB, ownerEmail string) (Owner, error){
 	return *owner, err
 }
 
+func GetOwnerById (dbh sql.DB, ownerId int64) (Owner, error) {
+	stmt, err := dbh.Prepare("select owner_name, owner_email from owner where owner_id=?")
+	defer stmt.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	var owner = new(Owner)
+	var oName sql.NullString
+	err = stmt.QueryRow(ownerId).Scan(&oName, &owner.Email)
+	if err != nil {
+		log.Printf("Unable to find owner with id: %d\n", ownerId)
+		return *owner, err
+	}
+	owner.Id = ownerId
+	if oName.Valid {
+		owner.Name = oName.String
+	}
+	stmt.Close()
+	return *owner, err
+}
+
 func SaveOwner (dbh sql.DB, o Owner) (int64, error) {
 	q := "insert into owner (owner_id, owner_name, owner_email) values (?, ?, ?) " +
 		"on duplicate key update owner_id=?, owner_name=?, owner_email=?"

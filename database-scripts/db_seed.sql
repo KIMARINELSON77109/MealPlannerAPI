@@ -55,19 +55,27 @@ insert into ingredient_list (recipe_id, ingredient_id) VALUES (
 	(select recipe_id from recipe where recipe_name='Brownies'),
 	(select ingredient_id from ingredient where item='eggs'));
 	
-insert into suggested_meal (meal_name, servings, rating, owner_id, recipe_id) values (
-'Evening snack', 1, 5, 
-(select owner_id from owner where owner_email='mrncmoose@gmail.com'),
-(select recipe_id from recipe where recipe_name='Brownies'));
+insert into meal_profile (profile_name) VALUES ("Active");
+insert into meal_profile (profile_name) VALUES ("Weight loss");
+insert into meal_profile (profile_name) VALUES ("Anti-inflammatory ");
+insert into meal_profile (profile_name) VALUES ("Normal");
 
-insert into meal_profile (profile_name, suggested_meal_id) VALUES (
-"Active", (select suggested_meal_id from suggested_meal where meal_name='Evening snack'));
-
-insert into meal (meal_name, servings, served_on, account_id, meal_type_id, recipe_id) VALUES (
-	'Evening snack', 1, '2017-04-01',
+insert into meal (meal_name, servings, account_id, meal_type_id) VALUES (
+	'Evening snack', 1,
 	(select owner_id from owner where owner_email='mrncmoose@gmail.com'),
-	(select meal_type_id from meal_type where meal_type='snack'),
-	(select recipe_id from recipe where recipe_name='Brownies')
+	(select meal_type_id from meal_type where meal_type='snack')
 );
 
-	
+insert into suggested_meal (edit_date, rating, owner_id, meal_id, serve_on) values (
+'2017-03-28', 3, 
+(select owner_id from owner where owner_email='mrncmoose@gmail.com'),
+(select meal_id from meal where meal_name='Evening snack'),
+'2017-03-28 21:30:00'
+);
+
+insert into meal_recipes (meal_id, recipe_id, meal_profile_id) VALUES (
+	(select meal_id from meal where meal_name='Evening snack'),
+	(select recipe_id from recipe where recipe_name='Brownies'),
+	(SELECT meal_profile_id from meal_profile where profile_name='Active')
+);
+

@@ -15,6 +15,7 @@ import (
 	"os"
 )
 
+//TODO:  need to change this to a value that will work when sending images.
 const maxReadBytes = 1048576
 const internalServerError = 500
 
@@ -246,4 +247,100 @@ func FindRecipeNameSoundsLike (w http.ResponseWriter, r *http.Request) {
     } else {
     	w.WriteHeader(http.StatusBadRequest)
     }	
+}
+
+func GetMealById (w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    vars := mux.Vars(r)
+    fmt.Printf("vars: %v\n", vars)
+    mealId, err := strconv.Atoi(vars["mealId"])
+    if err != nil {
+    	w.WriteHeader(http.StatusBadRequest)
+    	log.Println("Bad meal id sent")
+    } else {
+	    meal, err := GetMeal(*dbh, int64(mealId))
+	    if err != nil {
+	    	w.WriteHeader(http.StatusNoContent)
+	    	log.Println("Error getting meal")
+	    	log.Println(err)
+	    } else {
+	    	if err := json.NewEncoder(w).Encode(meal); err != nil {
+	    		panic(err)
+	    	}
+	    	w.WriteHeader(http.StatusOK)
+	    }
+    }
+}
+
+func GetMealsSoundsLike (w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    vars := mux.Vars(r)
+    fmt.Printf("vars: %v\n", vars)
+    soundsLike := vars["mealSoundsLike"]
+    if len(soundsLike) > 0 {
+	    meals, err := GetMealBySoundex(*dbh, soundsLike)
+	    if err != nil {
+	    	w.WriteHeader(http.StatusInternalServerError)
+	    } else {
+	    	if err := json.NewEncoder(w).Encode(meals); err != nil {
+	    		panic(err)
+	    	}
+	    	w.WriteHeader(http.StatusOK)
+	    }
+    } else {
+    	w.WriteHeader(http.StatusBadRequest)
+    }
+}
+
+func SaveMealHandler (w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    var meal Meal
+    body, err := ioutil.ReadAll(io.LimitReader(r.Body, maxReadBytes))
+    if err != nil {
+        panic(err)
+    }
+    if err := r.Body.Close(); err != nil {
+        panic(err)
+    }
+//    log.Printf("As recieved body:\n%s\n", body)
+    if err := json.Unmarshal(body, &meal); err != nil {
+        w.WriteHeader(422) // unprocessable entity
+        if err := json.NewEncoder(w).Encode(err); err != nil {
+            panic(err)
+        }
+    }
+	ingId, nfgErr := SaveMeal(*dbh, meal)
+	if(nfgErr != nil) {
+		log.Print(nfgErr)
+		w.WriteHeader(422)
+        if err := json.NewEncoder(w).Encode(err); err != nil {
+            panic(err)
+        }		
+	} else {
+	    w.WriteHeader(http.StatusCreated)
+	    if err := json.NewEncoder(w).Encode(ingId); err != nil {
+			panic(err)
+	    }
+	}
+}
+
+func GetMealsForProfileHandler (w http.ResponseWriter, r *http.Request) {
+    w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+    vars := mux.Vars(r)
+    fmt.Printf("vars: %v\n", vars)
+    profileId := vars["profileId"]
+    if len(profileId) > 0 {
+		meals, err := GetMealsForProfile(*dbh, profileId)
+		if err != nil {
+			log.Printf("Error getting meals for profile:\n%v\n", err)
+			w.WriteHeader(http.StatusInternalServerError)
+		} else {
+	    	if err := json.NewEncoder(w).Encode(meals); err != nil {
+	    		panic(err)
+	    	}
+	    	w.WriteHeader(http.StatusOK)			
+		}
+    } else {
+    	w.WriteHeader(http.StatusBadRequest)
+    }
 }
